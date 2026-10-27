@@ -1,0 +1,47 @@
+---
+import { profile } from '../data/profile';
+import { resumeHref } from '../lib/resume';
+import { safeExternal } from '../lib/site';
+
+interface Props {
+  /** Show the e-mail address as visible text with a copy button. */
+  detailed?: boolean;
+  id: string;
+}
+const { detailed = false, id } = Astro.props;
+
+const email = profile.email && /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(profile.email) ? profile.email : null;
+const linkedin = safeExternal(profile.linkedin);
+const github = safeExternal(profile.github);
+const hasAny = email || linkedin || github || resumeHref;
+---
+{hasAny && (
+  <div class="contact-actions">
+    {detailed && email && (
+      <p class="email-line">
+        <a class="email-link" href={`mailto:${email}`}>{email}</a>
+        <button class="copy-email btn btn-secondary" type="button" data-email={email} data-status={`${id}-status`} hidden>
+          Copy email
+        </button>
+        <span id={`${id}-status`} class="copy-status" role="status" aria-live="polite"></span>
+      </p>
+    )}
+    <ul class="btn-row" role="list">
+      {!detailed && email && <li><a class="btn btn-secondary" href={`mailto:${email}`}>Email me</a></li>}
+      {resumeHref && <li><a class="btn btn-secondary" href={resumeHref} download>Download CV <span class="visually-hidden">(PDF)</span></a></li>}
+      {resumeHref && detailed && <li><a class="btn btn-secondary" href={resumeHref}>View CV <span class="visually-hidden">(PDF, opens in browser)</span></a></li>}
+      {linkedin && <li><a class="btn btn-secondary" href={linkedin} rel="noopener noreferrer">LinkedIn <span class="visually-hidden">profile</span></a></li>}
+      {github && <li><a class="btn btn-secondary" href={github} rel="noopener noreferrer">GitHub <span class="visually-hidden">profile</span></a></li>}
+    </ul>
+  </div>
+)}
+{!hasAny && import.meta.env.DEV && (
+  <p class="draft-badge">Draft: add email, LinkedIn, GitHub or the CV PDF — see docs/pre-publication-checklist.md</p>
+)}
+
+<style>
+  .btn-row { list-style: none; padding: 0; margin: 0; }
+  .email-line { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; font-size: 1.15rem; margin-bottom: 1.25rem; }
+  .email-link { font-weight: 600; }
+  .copy-status { font-size: 0.95rem; color: var(--muted); }
+</style>

@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { AREA_LABEL, getProjects } from '../../lib/site';
+
+const projects = await getProjects();
+const groups = (['support', 'app'] as const)
+  .map((area) => ({ area, items: projects.filter((p) => p.data.area === area) }))
+  .filter((g) => g.items.length > 0);
+---
+<BaseLayout title="All projects" description="Complete catalogue of IT support, cloud and app development projects by Yavik Dayaram.">
+  <section class="section" aria-labelledby="all-title">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Projects</span>
+        <h1 id="all-title">All projects</h1>
+        <p>Every project is labelled with its type and status, so it is clear what is workplace, study, personal lab or prototype work.</p>
+      </div>
+      {groups.length === 0 && <p>Project case studies will appear here once they are published.</p>}
+      {groups.length > 1 && (
+        <nav aria-label="Project categories" class="jump">
+          <ul role="list">{groups.map((g) => <li><a href={`#${g.area}`}>{AREA_LABEL[g.area]} ({g.items.length})</a></li>)}</ul>
+        </nav>
+      )}
+      {groups.map((g) => (
+        <section id={g.area} aria-labelledby={`${g.area}-title`} class="group">
+          <h2 id={`${g.area}-title`}>{AREA_LABEL[g.area]}</h2>
+          <div class="grid">{g.items.map((p) => <ProjectCard project={p} />)}</div>
+        </section>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .jump ul { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; list-style: none; padding: 0; margin: 0 0 2rem; font-weight: 600; }
+  .jump a { display: inline-block; padding-block: 0.5rem; }
+  .group + .group { margin-top: 3rem; }
+  .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); }
+</style>

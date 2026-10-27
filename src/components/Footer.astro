@@ -1,0 +1,25 @@
+---
+import { profile } from '../data/profile';
+import { safeExternal, url } from '../lib/site';
+
+const repo = safeExternal(profile.repository);
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p>© {year} {profile.name}. All rights reserved.</p>
+    <ul class="footer-links">
+      <li><a href={url('/privacy/')}>Privacy</a></li>
+      <li><a href={url('/projects/')}>All projects</a></li>
+      {repo && <li><a href={repo} rel="noopener noreferrer">Site source on GitHub</a></li>}
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer { border-top: 1px solid var(--border); padding-block: 2rem; color: var(--muted); font-size: 0.95rem; }
+  .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; align-items: center; }
+  .footer-inner p { margin: 0; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; list-style: none; margin: 0; padding: 0; }
+  .footer-links a { display: inline-block; padding-block: 0.6rem; }
+</style>

@@ -1,0 +1,68 @@
+---
+import { profile } from '../data/profile';
+import { resumeHref } from '../lib/resume';
+import { getSections } from '../lib/sections';
+import { url } from '../lib/site';
+
+const home = url('/');
+const { nav } = await getSections();
+const links = nav.map((s) => ({ href: `${home}#${s.id}`, label: s.label }));
+---
+<header class="site-header" data-menu="open">
+  <div class="container header-inner">
+    <a class="brand" href={home}>
+      <span class="brand-mark" aria-hidden="true">YD</span>
+      <span>{profile.name}</span>
+    </a>
+    <button class="menu-toggle btn btn-secondary" type="button" aria-expanded="true" aria-controls="site-nav" hidden>
+      Menu
+    </button>
+    <nav id="site-nav" aria-label="Main">
+      <ul class="nav-list">
+        {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        {resumeHref && <li><a class="nav-cv" href={resumeHref}>CV <span class="visually-hidden">(PDF)</span></a></li>}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem 1.5rem; min-height: var(--header-h); padding-block: 0.5rem;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-weight: 700; color: var(--text); text-decoration: none; min-height: 2.75rem;
+  }
+  .brand-mark {
+    display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 8px;
+    background: var(--accent); color: var(--on-accent); font-size: 0.85rem; letter-spacing: 0.02em;
+  }
+  .nav-list {
+    display: flex; flex-wrap: wrap; gap: 0.1rem 0.25rem; list-style: none; margin: 0; padding: 0;
+  }
+  .nav-list a {
+    display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 0.7rem;
+    color: var(--text); text-decoration: none; font-weight: 500; border-radius: 8px;
+  }
+  .nav-list a:hover { background: var(--surface-2); color: var(--accent-hover); }
+  .nav-cv { border: 1.5px solid var(--accent); color: var(--accent) !important; }
+
+  /* With JavaScript, collapse the menu on narrow screens. Without it, the
+     list simply wraps below the name — still fully usable. */
+  @media (max-width: 47.99rem) {
+    .site-header.js-menu nav { flex-basis: 100%; }
+    .site-header.js-menu[data-menu="closed"] nav { display: none; }
+    .site-header.js-menu .nav-list { flex-direction: column; padding-bottom: 0.75rem; }
+  }
+  @media (min-width: 48rem) {
+    .menu-toggle { display: none; }
+  }
+</style>

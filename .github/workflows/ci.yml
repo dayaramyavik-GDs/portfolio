@@ -1,0 +1,42 @@
+name: CI
+
+# Validation only: read-only token, no secrets, safe for pull requests from forks.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        # Test a root-domain build and a GitHub Pages repository-subpath build.
+        base: ['/', '/portfolio']
+    steps:
+      # Actions pinned to commit SHAs (resolved from release tags on 2026-10-27). Dependabot proposes updates.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run check
+      - run: npm run build
+        env:
+          SITE_URL: https://example.com
+          BASE_PATH: ${{ matrix.base }}
+      - run: npm run test:links
+        env:
+          BASE_PATH: ${{ matrix.base }}

@@ -1,0 +1,6 @@
+---
+// Rendered only in `npm run dev` for unpublished items; never in production.
+interface Props { show: boolean }
+const { show } = Astro.props;
+---
+{show && import.meta.env.DEV && <span class="draft-badge">Draft — hidden in production</span>}

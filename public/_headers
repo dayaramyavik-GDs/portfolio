@@ -1,0 +1,15 @@
+# Response headers for Netlify and Cloudflare Pages (both read this file).
+# GitHub Pages and plain static hosts IGNORE it — see docs/security.md.
+# Keep the CSP in sync with src/lib/security.ts (checked by npm run test:links).
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  # Enable only after HTTPS works on your final domain (start without preload):
+  # Strict-Transport-Security: max-age=31536000
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,58 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DraftBadge from '../../components/DraftBadge.astro';
+import { AREA_LABEL, getProjects, url, type Project } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
+}
+
+interface Props { project: Project }
+const { project } = Astro.props;
+const p = project.data;
+const { Content } = await render(project);
+---
+<BaseLayout title={p.title} description={`${p.title}: ${p.problem}`}>
+  <article class="section">
+    <div class="container">
+      <p><a href={url('/projects/')}>← All projects</a></p>
+      <header class:list={['head', { 'is-draft': !p.published }]}>
+        <p class="meta">
+          <span class="label">{AREA_LABEL[p.area]}</span>
+          <span>{p.type} · {p.status} · {p.date}</span>
+          <DraftBadge show={!p.published} />
+        </p>
+        <h1>{p.title}</h1>
+        <dl class="facts">
+          <div><dt>Problem</dt><dd>{p.problem}</dd></div>
+          <div><dt>My contribution</dt><dd>{p.contribution}</dd></div>
+          <div><dt>Technology</dt><dd><ul class="tag-list">{p.tech.map((t) => <li class="tag">{t}</li>)}</ul></dd></div>
+        </dl>
+        {(p.repo || p.demo || p.download) && (
+          <ul class="btn-row" role="list">
+            {p.repo && <li><a class="btn btn-secondary" href={p.repo} rel="noopener noreferrer">Source code</a></li>}
+            {p.demo && <li><a class="btn btn-secondary" href={p.demo} rel="noopener noreferrer">Live demo</a></li>}
+            {p.download && <li><a class="btn btn-secondary" href={p.download} rel="noopener noreferrer">Download</a></li>}
+          </ul>
+        )}
+      </header>
+      {p.cover && p.coverAlt && (
+        <Image src={p.cover} alt={p.coverAlt} widths={[640, 1280]} sizes="(min-width: 50rem) 44rem, 100vw" class="cover" />
+      )}
+      <div class="prose"><Content /></div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .head { max-width: 46rem; margin-bottom: 2rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; color: var(--muted); font-size: 0.92rem; }
+  .facts { display: grid; gap: 1rem; margin: 1.5rem 0; }
+  .facts dt { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .facts dd { margin: 0.2rem 0 0; }
+  .btn-row { list-style: none; padding: 0; margin: 0; }
+  .cover { max-width: 44rem; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 2rem; }
+</style>

@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import ContactActions from '../components/ContactActions.astro';
+import DraftBadge from '../components/DraftBadge.astro';
+import { about, certifications, profile } from '../data/profile';
+import { resumeHref } from '../lib/resume';
+import { getSections } from '../lib/sections';
+import { AREA_LABEL, isVisible, safeExternal, url } from '../lib/site';
+
+const { featured, projects, skills, jobs, study, hasContact } = await getSections();
+const linkedin = safeExternal(profile.linkedin);
+const certs = certifications.filter(isVisible);
+const areas = (['support', 'app'] as const)
+  .map((area) => ({ area, items: featured.filter((p) => p.data.area === area) }))
+  .filter((g) => g.items.length > 0);
+---
+<BaseLayout>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container">
+      <p class="eyebrow">{profile.location}</p>
+      <h1 id="hero-title">{profile.name}</h1>
+      <p class="headline">{profile.headline}</p>
+      <p class="summary">{profile.summary}</p>
+      {profile.openToWork && <p class="label">Open to IT Support and junior developer opportunities</p>}
+      {(featured.length > 0 || resumeHref || hasContact) && (
+        <ul class="btn-row actions" role="list">
+          {featured.length > 0 && <li><a class="btn btn-primary" href="#work">View my work</a></li>}
+          {resumeHref && <li><a class="btn btn-secondary" href={resumeHref} download>Download CV <span class="visually-hidden">(PDF)</span></a></li>}
+          {hasContact && <li><a class={`btn ${featured.length > 0 ? 'btn-secondary' : 'btn-primary'}`} href="#contact">Contact me</a></li>}
+          {linkedin && <li><a class="btn btn-secondary" href={linkedin} rel="noopener noreferrer">LinkedIn <span class="visually-hidden">profile</span></a></li>}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  {areas.length > 0 && (
+    <section id="work" class="section" aria-labelledby="work-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Selected work</span>
+          <h2 id="work-title">Support work and the apps I build</h2>
+          <p>Each project is labelled with what it is — workplace, study, personal lab or prototype — and what I personally did.</p>
+        </div>
+        {areas.map((g) => (
+          <div class="area">
+            <h3 class="area-title">{AREA_LABEL[g.area]}</h3>
+            <div class="grid">
+              {g.items.map((p) => <ProjectCard project={p} />)}
+            </div>
+          </div>
+        ))}
+        {projects.length > featured.length && (
+          <p><a class="btn btn-secondary" href={url('/projects/')}>View all projects</a></p>
+        )}
+      </div>
+    </section>
+  )}
+
+  {skills.length > 0 && (
+    <section id="skills" class="section" aria-labelledby="skills-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Skills</span>
+          <h2 id="skills-title">What I work with</h2>
+          <p>Grouped by area, and marked by where I have used each one.</p>
+        </div>
+        <div class="grid">
+          {skills.map((g) => (
+            <div class="card">
+              <h3>{g.title}</h3>
+              <ul class="skill-list">
+                {g.skills.map((s) => (
+                  <li class:list={{ 'is-draft': !s.published }}>
+                    {s.project ? <a href={url(`/projects/${s.project}/`)}>{s.name}</a> : <span>{s.name}</span>}
+                    <span class="skill-context">{s.context}</span>
+                    <DraftBadge show={!s.published} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {jobs.length > 0 && (
+    <section id="experience" class="section" aria-labelledby="experience-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Experience</span>
+          <h2 id="experience-title">Work history</h2>
+        </div>
+        <ol class="timeline" role="list">
+          {jobs.map((j) => (
+            <li class:list={['card', { 'is-draft': !j.published }]}>
+              <p class="dates"><time datetime={j.start}>{j.dates}</time> · {j.location}</p>
+              <h3>{j.title}</h3>
+              <p class="employer">{j.employer}</p>
+              {j.points.length > 0 && <ul>{j.points.map((pt) => <li>{pt}</li>)}</ul>}
+              <DraftBadge show={!j.published} />
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )}
+
+  {(about.length > 0 || study.length > 0) && (
+    <section id="about" class="section" aria-labelledby="about-title">
+      <div class="container about">
+        <div>
+          <span class="eyebrow">About</span>
+          <h2 id="about-title">Support and software, from the user's side</h2>
+          {about.map((para) => <p>{para}</p>)}
+        </div>
+        {study.length > 0 && (
+          <div class="card">
+            <h3>Education</h3>
+            <ul class="edu-list" role="list">
+              {study.map((e) => (
+                <li class:list={{ 'is-draft': !e.published }}>
+                  <strong>{e.qualification}</strong><br />
+                  {e.institution}<br />
+                  <span class="muted">{e.status}</span>
+                </li>
+              ))}
+            </ul>
+            {certs.length > 0 && (
+              <>
+                <h3 class="cert-title">Certificates</h3>
+                <ul class="edu-list" role="list">
+                  {certs.map((c) => <li>{c.name}</li>)}
+                </ul>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  {(hasContact || import.meta.env.DEV) && (
+    <section id="contact" class="section contact" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Contact</span>
+          <h2 id="contact-title">Get in touch</h2>
+          <p>Recruiters and employers are welcome to contact me directly. I'm based in Melbourne.</p>
+        </div>
+        <ContactActions id="contact" detailed />
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .hero { padding-block: clamp(2.5rem, 1.5rem + 5vw, 5.5rem) clamp(2rem, 1rem + 4vw, 4rem); }
+  .hero h1 { margin-bottom: 0.2rem; }
+  .headline { font-size: clamp(1.25rem, 1rem + 1.2vw, 1.75rem); font-weight: 600; color: var(--accent); margin-bottom: 0.75rem; }
+  .summary { font-size: 1.2rem; color: var(--muted); max-width: 36rem; }
+  .actions { list-style: none; padding: 0; margin: 1.5rem 0 0; }
+  .area + .area { margin-top: 2.5rem; }
+  .area-title { font-size: 1.05rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+  .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); margin-bottom: 1.5rem; }
+  .skill-list { list-style: none; padding: 0; margin: 0; }
+  .skill-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 0.75rem; padding-block: 0.45rem; border-bottom: 1px solid var(--border); }
+  .skill-list li:last-child { border-bottom: 0; }
+  .skill-context { font-size: 0.85rem; color: var(--muted); }
+  .timeline { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; max-width: 46rem; }
+  .timeline h3 { margin-bottom: 0.15rem; }
+  .dates, .employer { color: var(--muted); margin-bottom: 0.35rem; }
+  .employer { font-weight: 600; color: var(--text); }
+  .about { display: grid; gap: 2rem; }
+  .about p { max-width: 42rem; }
+  .edu-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+  .muted { color: var(--muted); }
+  .cert-title { margin-top: 1.5rem; }
+  @media (min-width: 60rem) { .about { grid-template-columns: 3fr 2fr; align-items: start; } }
+</style>

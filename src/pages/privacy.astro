@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { profile } from '../data/profile';
+---
+<BaseLayout title="Privacy" description="How this portfolio handles visitor information.">
+  <section class="section">
+    <div class="container prose">
+      <h1>Privacy</h1>
+      <p>This is a static website. It does not use cookies, analytics, tracking scripts, advertising, embedded third-party content or a contact form, and it does not ask you to sign in.</p>
+      <p>Like any website, the hosting provider that serves these pages may keep standard technical logs (such as IP address, browser type and the pages requested) for security and reliability. Those logs are controlled by the hosting provider under its own privacy policy, not collected by this site.</p>
+      <p>If you choose to email me, I will use your message and contact details only to reply and to discuss the opportunity you raise. I won't sell them or add you to a mailing list.</p>
+      <p>Questions about this page can be sent to {profile.name} using the contact details on the home page.</p>
+    </div>
+  </section>
+</BaseLayout>

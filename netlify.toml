@@ -1,0 +1,11 @@
+# Netlify build settings. Security headers live in public/_headers,
+# which Netlify applies automatically (one source shared with Cloudflare Pages).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  # SITE_URL is optional here: Netlify provides URL (your primary address)
+  # automatically. Set SITE_URL only to override it.
+  BASE_PATH = "/"

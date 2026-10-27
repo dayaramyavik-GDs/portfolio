@@ -1,0 +1,45 @@
+---
+import { Image } from 'astro:assets';
+import DraftBadge from './DraftBadge.astro';
+import { AREA_LABEL, url, type Project } from '../lib/site';
+
+interface Props { project: Project; headingLevel?: 'h3' | 'h2' }
+const { project, headingLevel = 'h3' } = Astro.props;
+const p = project.data;
+const Heading = headingLevel;
+const href = url(`/projects/${project.id}/`);
+---
+<article class:list={['card', 'project-card', { 'is-draft': !p.published }]}>
+  {p.cover && p.coverAlt && (
+    <Image src={p.cover} alt={p.coverAlt} widths={[400, 800]} sizes="(min-width: 60rem) 30rem, 100vw" loading="lazy" class="cover" />
+  )}
+  <div class="meta">
+    <span class="label">{AREA_LABEL[p.area]}</span>
+    <span class="type">{p.type} · {p.status}</span>
+    <DraftBadge show={!p.published} />
+  </div>
+  <Heading class="title"><a href={href}>{p.title}</a></Heading>
+  <p><strong>Problem:</strong> {p.problem}</p>
+  <p><strong>My part:</strong> {p.contribution}</p>
+  <ul class="tag-list" aria-label="Technologies">
+    {p.tech.map((t) => <li class="tag">{t}</li>)}
+  </ul>
+  <p class="links">
+    <a href={href}>Read the case study<span class="visually-hidden">: {p.title}</span></a>
+    {p.repo && <a href={p.repo} rel="noopener noreferrer">Source code<span class="visually-hidden"> for {p.title}</span></a>}
+    {p.demo && <a href={p.demo} rel="noopener noreferrer">Live demo<span class="visually-hidden"> of {p.title}</span></a>}
+  </p>
+</article>
+
+<style>
+  .project-card { display: flex; flex-direction: column; gap: 0.25rem; }
+  .cover { border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 0.75rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.88rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .title { margin-bottom: 0.4rem; }
+  .title a { color: var(--text); text-decoration: none; }
+  .title a:hover { color: var(--accent-hover); text-decoration: underline; }
+  .project-card p { margin-bottom: 0.5rem; }
+  .tag-list { margin-block: 0.5rem 1rem; }
+  .links { margin-top: auto; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; font-weight: 600; }
+  .links a { display: inline-block; padding-block: 0.4rem; }
+</style>

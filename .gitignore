@@ -1,0 +1,24 @@
+# Build output and dependencies
+dist/
+node_modules/
+.astro/
+
+# Environment and secrets — never commit real values
+.env
+.env.*
+!.env.example
+
+# Private material that must never reach the public repository
+private/
+*.private.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+npm-debug.log*
+
+# Local editor/agent tooling
+.claude/
